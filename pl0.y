@@ -112,12 +112,42 @@ extern void setProgAST(block_t t);
 }
 
 %%
- /* Write your grammar rules below and before the next %% */
+    // Nawfal
+    ⟨program⟩ ::= ⟨block⟩ .
+    ⟨block⟩ ::= ⟨const-decls⟩ ⟨var-decls⟩ ⟨proc-decls⟩ ⟨stmt⟩
+    ⟨const-decls⟩ ::= {⟨const-decl⟩}
+    ⟨const-decl⟩ ::= const ⟨const-defs⟩ ;
+    ⟨const-defs⟩ ::= ⟨const-def⟩ | ⟨const-defs⟩ , ⟨const-def⟩
+    ⟨const-def⟩ ::= ⟨ident⟩ = ⟨number⟩
+    ⟨var-decls⟩ ::= {⟨var-decl⟩}
+    ⟨var-decl⟩ ::= var ⟨idents⟩ ;
+    ⟨idents⟩ ::= ⟨ident⟩ | ⟨idents⟩ , ⟨ident⟩
+    ⟨proc-decls⟩ ::= {⟨proc-decl⟩}
 
+    // Yamil
+    ⟨proc-decl⟩ ::= procedure ⟨ident⟩ ; ⟨block⟩ ;
+    ⟨stmt⟩ ::= ⟨assign-stmt⟩ | ⟨call-stmt⟩ | ⟨begin-stmt⟩ | ⟨if-stmt⟩
+    | ⟨while-stmt⟩ | ⟨read-stmt⟩ | ⟨write-stmt⟩ | ⟨skip-stmt⟩
+    ⟨assign-stmt⟩ ::= ⟨ident⟩ := ⟨expr⟩
+    ⟨call-stmt⟩ ::= call ⟨ident⟩
+    ⟨begin-stmt⟩ ::= begin ⟨stmts⟩ end
+    ⟨if-stmt⟩ ::= if ⟨condition⟩ then ⟨stmt⟩ else ⟨stmt⟩
+    ⟨while-stmt⟩ ::= while ⟨condition⟩ do ⟨stmt⟩
+    ⟨read-stmt⟩ ::= read ⟨ident⟩
+    ⟨write-stmt⟩ ::= write ⟨expr⟩
 
-
-
-
+    // Robert
+    ⟨skip-stmt⟩ ::= skip
+    ⟨stmts⟩ ::= ⟨stmt⟩ | ⟨stmts⟩ ; ⟨stmt⟩
+    ⟨condition⟩ ::= ⟨odd-condition⟩ | ⟨rel-op-condition⟩
+    ⟨odd-condition⟩ ::= odd ⟨expr⟩
+    ⟨rel-op-condition⟩ ::= ⟨expr⟩ ⟨rel-op⟩ ⟨expr⟩
+    ⟨rel-op⟩ ::= = | <> | < | <= | > | >=
+    ⟨expr⟩ ::= ⟨term⟩ | ⟨expr⟩ ⟨plus⟩ ⟨term⟩ | ⟨expr⟩ ⟨minus⟩ ⟨term⟩
+    ⟨term⟩ ::= ⟨factor⟩ | ⟨term⟩ ⟨mult⟩ ⟨factor⟩ | ⟨term⟩ ⟨div⟩ ⟨factor⟩
+    ⟨factor⟩ ::= ⟨ident⟩ | ⟨minus⟩ ⟨number⟩ | ⟨pos-sign⟩ ⟨number⟩ | ( ⟨expr⟩ )
+    ⟨pos-sign⟩ ::= ⟨plus⟩ | ⟨empty⟩
+    ⟨empty⟩ ::=
 %%
 
 // Set the program's ast to be ast

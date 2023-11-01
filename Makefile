@@ -24,7 +24,7 @@ PL0 = pl0
 COMPILER_OBJECTS = $(COMPILER)_main.o $(PL0)_lexer.o \
 		parser.o unparser.o id_use.o \
 		id_attrs.o ast.o $(PL0).tab.o file_location.o utilities.o \
-		scope.o scope_check.o symtab.o  
+		# scope.o scope_check.o symtab.o  
 
 # If you want to test the lexical analysis part separately,
 # then you might want to build the lexer,
@@ -92,7 +92,7 @@ $(PL0)_lexer.c: $(PL0)_lexer.l $(PL0).tab.h
 	$(LEX) $(LEXFLAGS) $<
 
 $(PL0)_lexer.o: $(PL0)_lexer.c ast.h utilities.h file_location.h
-	$(CC) $(CFLAGS) -Wno-unused-but-set-variable -c $(PL0)_lexer.c
+	$(CC) $(CFLAGS) -Wno-unused-function -Wno-unused-but-set-variable -c $(PL0)_lexer.c
 
 $(LEXER): $(LEXER_OBJECTS)
 	$(CC) $(CFLAGS) $^ -o $@

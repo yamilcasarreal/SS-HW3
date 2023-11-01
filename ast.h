@@ -1,4 +1,4 @@
-/* $Id: ast.h,v 1.19 2023/10/27 01:43:53 leavens Exp leavens $ */
+/* $Id: ast.h,v 1.21 2023/10/27 16:09:27 leavens Exp leavens $ */
 #ifndef _AST_H
 #define _AST_H
 #include <stdbool.h>
@@ -35,7 +35,7 @@ typedef struct {
     AST_type type_tag;
 } empty_t;
 
-// label ::= ident
+// identifiers
 typedef struct ident_s {
     file_location *file_loc;
     AST_type type_tag;
@@ -144,14 +144,14 @@ typedef struct {
     const char *name;
 } call_stmt_t;
 
-// stmt ::= begin stmts end
+// BS ::= Ss
 typedef struct {
     file_location *file_loc;
     AST_type type_tag;
     stmts_t stmts;
 } begin_stmt_t;
 
-// stmt ::= if condition then stmt else stmt
+// IfS ::= if C S1 S2
 typedef struct {
     file_location *file_loc;
     AST_type type_tag;
@@ -248,7 +248,7 @@ typedef struct {
     var_decl_t *var_decls;
 } var_decls_t;
 
-// constDef ::= ident = number
+// CDef ::= ident number
 typedef struct const_def_s {
     file_location *file_loc;
     AST_type type_tag;
@@ -257,14 +257,14 @@ typedef struct const_def_s {
     number_t number;
 } const_def_t;
 
-// const-defs ::= const-def | const-defs , const-def
+// CDefs ::= { CDef }
 typedef struct {
     file_location *file_loc;
     AST_type type_tag;
     const_def_t *const_defs;
 } const_defs_t;
 
-// const-decl ::= const const-defs
+// CD ::= const CDefs
 typedef struct const_decl_s {
     file_location *file_loc;
     AST_type type_tag;
@@ -272,14 +272,14 @@ typedef struct const_decl_s {
     const_defs_t const_defs;
 } const_decl_t;
 
-// const-decls ::= { const-decl }
+// CDs ::= { CD }
 typedef struct {
     file_location *file_loc;
     AST_type type_tag;
     const_decl_t *const_decls;
 } const_decls_t;
 
-// block ::= const-decls var-decls proc-decls stmt
+// B ::= CDs VDs PDs S
 typedef struct block_s {
     file_location *file_loc;
     AST_type type_tag;
@@ -291,7 +291,7 @@ typedef struct block_s {
 
 // program ::= block
 
-// The AST definition used by the parser generator (bison)
+// The AST definition used by bison
 typedef union AST_u {
     generic_t generic;
     block_t block;

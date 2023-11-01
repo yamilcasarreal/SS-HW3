@@ -1,0 +1,211 @@
+Nonterminals useless in grammar
+
+    block
+    constDecls
+    varDecls
+    varDecl
+    idents
+    procDecls
+    constDecl
+    procDecl
+    stmt
+    assignStmt
+    callStmt
+    beginStmt
+    ifStmt
+    whileStmt
+    readStmt
+    writeStmt
+    skipStmt
+    stmts
+    condition
+    oddCondition
+    relOpCondition
+    expr
+    relOp
+    term
+    factor
+    posSign
+
+
+Terminals unused in grammar
+
+    "+"
+    "-"
+    "*"
+    "/"
+    "."
+    ";"
+    ","
+    ":="
+    "var"
+    "procedure"
+    "call"
+    "begin"
+    "end"
+    "if"
+    "then"
+    "else"
+    "while"
+    "do"
+    "read"
+    "write"
+    "skip"
+    "odd"
+    "<>"
+    "<"
+    "<="
+    ">"
+    ">="
+    "("
+    ")"
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: constDefs
+
+    2 constDefs: empty
+    3          | constDefs constDef
+
+    4 empty: ε
+
+    5 constDef: "const" identsym "=" numbersym
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    identsym <ident> (258) 5
+    numbersym <number> (259) 5
+    "+" <token> (260)
+    "-" <token> (261)
+    "*" <token> (262)
+    "/" <token> (263)
+    "." <token> (264)
+    ";" <token> (265)
+    "=" <token> (266) 5
+    "," <token> (267)
+    ":=" <token> (268)
+    "const" <token> (269) 5
+    "var" <token> (270)
+    "procedure" <token> (271)
+    "call" <token> (272)
+    "begin" <token> (273)
+    "end" <token> (274)
+    "if" <token> (275)
+    "then" <token> (276)
+    "else" <token> (277)
+    "while" <token> (278)
+    "do" <token> (279)
+    "read" <token> (280)
+    "write" <token> (281)
+    "skip" <token> (282)
+    "odd" <token> (283)
+    "<>" <token> (284)
+    "<" <token> (285)
+    "<=" <token> (286)
+    ">" <token> (287)
+    ">=" <token> (288)
+    "(" <token> (289)
+    ")" <token> (290)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (36)
+        on left: 0
+    program <block> (37)
+        on left: 1
+        on right: 0
+    constDefs <const_defs> (38)
+        on left: 2 3
+        on right: 1 3
+    empty <empty> (39)
+        on left: 4
+        on right: 2
+    constDef <const_def> (40)
+        on left: 5
+        on right: 3
+
+
+State 0
+
+    0 $accept: • program $end
+
+    $default  reduce using rule 4 (empty)
+
+    program    go to state 1
+    constDefs  go to state 2
+    empty      go to state 3
+
+
+State 1
+
+    0 $accept: program • $end
+
+    $end  shift, and go to state 4
+
+
+State 2
+
+    1 program: constDefs •
+    3 constDefs: constDefs • constDef
+
+    "const"  shift, and go to state 5
+
+    $default  reduce using rule 1 (program)
+
+    constDef  go to state 6
+
+
+State 3
+
+    2 constDefs: empty •
+
+    $default  reduce using rule 2 (constDefs)
+
+
+State 4
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 5
+
+    5 constDef: "const" • identsym "=" numbersym
+
+    identsym  shift, and go to state 7
+
+
+State 6
+
+    3 constDefs: constDefs constDef •
+
+    $default  reduce using rule 3 (constDefs)
+
+
+State 7
+
+    5 constDef: "const" identsym • "=" numbersym
+
+    "="  shift, and go to state 8
+
+
+State 8
+
+    5 constDef: "const" identsym "=" • numbersym
+
+    numbersym  shift, and go to state 9
+
+
+State 9
+
+    5 constDef: "const" identsym "=" numbersym •
+
+    $default  reduce using rule 5 (constDef)
