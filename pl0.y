@@ -113,10 +113,10 @@ extern void setProgAST(block_t t);
 
 %%
     // Nawfal
-    ⟨program⟩ ::= ⟨block⟩ .
-    ⟨block⟩ ::= ⟨const-decls⟩ ⟨var-decls⟩ ⟨proc-decls⟩ ⟨stmt⟩
-    ⟨const-decls⟩ ::= {⟨const-decl⟩}
-    ⟨const-decl⟩ ::= const ⟨const-defs⟩ ;
+    program : block { setProgAST($1); };
+    block: constDecls varDecls procDecls stmt { $$ = ast_block($1, $2, $3, $4); } ;     
+    constDecls ::= constDecl { $$ }
+    const-decl ::= const ⟨const-defs⟩ ;
     ⟨const-defs⟩ ::= ⟨const-def⟩ | ⟨const-defs⟩ , ⟨const-def⟩
     ⟨const-def⟩ ::= ⟨ident⟩ = ⟨number⟩
     ⟨var-decls⟩ ::= {⟨var-decl⟩}
