@@ -114,8 +114,8 @@ extern void setProgAST(block_t t);
 %%
     // Nawfal
     program : block { setProgAST($1); };
-    block: constDecls varDecls procDecls stmt { $$ = ast_block($1, $2, $3, $4); } ;     
-    constDecls ::= constDecl { $$ }
+    block : constDecls varDecls procDecls stmt { $$ = ast_block($1, $2, $3, $4); } ;     
+    constDecls ::= constDecl { $$ = }
     const-decl ::= const ⟨const-defs⟩ ;
     ⟨const-defs⟩ ::= ⟨const-def⟩ | ⟨const-defs⟩ , ⟨const-def⟩
     ⟨const-def⟩ ::= ⟨ident⟩ = ⟨number⟩
@@ -126,8 +126,8 @@ extern void setProgAST(block_t t);
 
     // Yamil
     ⟨proc-decl⟩ ::= procedure ⟨ident⟩ ; ⟨block⟩ ;
-    ⟨stmt⟩ ::= ⟨assign-stmt⟩ | ⟨call-stmt⟩ | ⟨begin-stmt⟩ | ⟨if-stmt⟩
-    | ⟨while-stmt⟩ | ⟨read-stmt⟩ | ⟨write-stmt⟩ | ⟨skip-stmt⟩
+    stmt : assignStmt | callStmt | beginStmt | ifStmt | whileStmt | readStmt | writeStmt | skipStmt { $$ = ast_stmts_singleton($1);};
+    
     ⟨assign-stmt⟩ ::= ⟨ident⟩ := ⟨expr⟩
     ⟨call-stmt⟩ ::= call ⟨ident⟩
     ⟨begin-stmt⟩ ::= begin ⟨stmts⟩ end
@@ -137,7 +137,7 @@ extern void setProgAST(block_t t);
     ⟨write-stmt⟩ ::= write ⟨expr⟩
 
     // Robert
-    ⟨skip-stmt⟩ ::= skip
+    skipStmt : skipsym { $$ = ast_skip_stmt($1);};
     ⟨stmts⟩ ::= ⟨stmt⟩ | ⟨stmts⟩ ; ⟨stmt⟩
     ⟨condition⟩ ::= ⟨odd-condition⟩ | ⟨rel-op-condition⟩
     ⟨odd-condition⟩ ::= odd ⟨expr⟩
