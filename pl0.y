@@ -113,41 +113,50 @@ extern void setProgAST(block_t t);
 
 %%
     // Nawfal
-    program : block { setProgAST($1); };
-    block: constDecls varDecls procDecls stmt { $$ = ast_block($1, $2, $3, $4); } ;     
-    constDecls ::= constDecl { $$ }
-    const-decl ::= const ⟨const-defs⟩ ;
-    ⟨const-defs⟩ ::= ⟨const-def⟩ | ⟨const-defs⟩ , ⟨const-def⟩
-    ⟨const-def⟩ ::= ⟨ident⟩ = ⟨number⟩
-    ⟨var-decls⟩ ::= {⟨var-decl⟩}
-    ⟨var-decl⟩ ::= var ⟨idents⟩ ;
-    ⟨idents⟩ ::= ⟨ident⟩ | ⟨idents⟩ , ⟨ident⟩
-    ⟨proc-decls⟩ ::= {⟨proc-decl⟩}
-
+    program    : block periodsym { setProgAST($1); };
+    block      : constDecls varDecls procDecls stmt { $$ = ast_block($1, $2, $3, $4); } ;
+    constDecls : empty { $$ = ast_const_decls_empty($1); }
+                | constDecls constDecl {$$ = ast_const_decls($1, $2); };
+    constDecl  : constsym constDefs semisym {$$ = ast_const_decl($1); };
+    constDefs  : constDef {$$ = ast_const_defs_singleton($1); };
+                | constDefs commasym constDef {$$ = ast_const_defs($1, $2); };
+    constDef   : identsym eqsym numbersym {$$ = ast_const_def($1, $2); };
+    varDecls   : empty { $$ = ast_var_decls_empty($1); }
+                | varDecls varDecl {$$ = ast_var_decls($1, $2); };
+    varDecl    : varsym identsym semisym {$$ = ast_var_decl($1); };
+    idents     : identsym {$$ = ast_idents_singleton($1); };
+                | idents commasym identsym {$$ = ast_idents($1, $2); };
+    procDecls  : empty { $$ = ast_proc_decls_empty($1); }
+                | procDecls procDecl {$$ = ast_proc_decls($1, $2); };
+    procDecl   : proceduresym identsym semisym block semisym {$$ = ast_proc_decl($1, $2); };
+    stmt       : assignStmt      { $$ = ast_stmt_assign($1); }
+                | callStmt       { $$ = ast_stmt_call($1);   }
+                | beginStmt      { $$ = ast_stmt_begin($1);  }
+                | ifStmt         { $$ = ast_stmt_if($1);     }
+                | whileStmt      { $$ = ast_stmt_while($1);  }
+                | readStmt       { $$ = ast_stmt_read($1);   }
+                | writeStmt      { $$ = ast_stmt_write($1);  }
+                | skipStmt       { $$ = ast_stmt_skip($1);   };
+    
     // Yamil
-    ⟨proc-decl⟩ ::= procedure ⟨ident⟩ ; ⟨block⟩ ; procedure ident {$$ = ast_proc_decl($1, $2)}
-    ⟨stmt⟩ ::= ⟨assign-stmt⟩ | ⟨call-stmt⟩ | ⟨begin-stmt⟩ | ⟨if-stmt⟩
-    | ⟨while-stmt⟩ | ⟨read-stmt⟩ | ⟨write-stmt⟩ | ⟨skip-stmt⟩
-    ⟨assign-stmt⟩ ::= ⟨ident⟩ := ⟨expr⟩
-    ⟨call-stmt⟩ ::= call ⟨ident⟩
-    ⟨begin-stmt⟩ ::= begin ⟨stmts⟩ end
-    ⟨if-stmt⟩ ::= if ⟨condition⟩ then ⟨stmt⟩ else ⟨stmt⟩
-    ⟨while-stmt⟩ ::= while ⟨condition⟩ do ⟨stmt⟩
-    ⟨read-stmt⟩ ::= read ⟨ident⟩
-    ⟨write-stmt⟩ ::= write ⟨expr⟩
+    assignStmt  : ident expr {$$ = ast_assign_stmt($1, $2); };
+    callStmt    : callsym ident {$$ = ast_call_stmt($2); };
+    beginStmt   : beginsym stmts endsym {$$ = ast_begin_stmt($2); };
+    ifStmt      : ifsym condition thensym stmt elsesym stmt {$$ = ast_if_stmt($2, $4, $6); };
+    whileStmt   : whilesym condition dosym stmt {$$ = ast_While_stmt($2, $4); };
+    readStmt    : readsym ident {$$ = ast_read_stmt($2); };
+    writeStmt   : writesym expr {$$ = ast_write_stmt($2); };
 
     // Robert
-    ⟨skip-stmt⟩ ::= skip
-    ⟨stmts⟩ ::= ⟨stmt⟩ | ⟨stmts⟩ ; ⟨stmt⟩
-    ⟨condition⟩ ::= ⟨odd-condition⟩ | ⟨rel-op-condition⟩
-    ⟨odd-condition⟩ ::= odd ⟨expr⟩
-    ⟨rel-op-condition⟩ ::= ⟨expr⟩ ⟨rel-op⟩ ⟨expr⟩
-    ⟨rel-op⟩ ::= = | <> | < | <= | > | >=
-    ⟨expr⟩ ::= ⟨term⟩ | ⟨expr⟩ ⟨plus⟩ ⟨term⟩ | ⟨expr⟩ ⟨minus⟩ ⟨term⟩
-    ⟨term⟩ ::= ⟨factor⟩ | ⟨term⟩ ⟨mult⟩ ⟨factor⟩ | ⟨term⟩ ⟨div⟩ ⟨factor⟩
-    ⟨factor⟩ ::= ⟨ident⟩ | ⟨minus⟩ ⟨number⟩ | ⟨pos-sign⟩ ⟨number⟩ | ( ⟨expr⟩ )
-    ⟨pos-sign⟩ ::= ⟨plus⟩ | ⟨empty⟩
-    ⟨empty⟩ ::=
+    // ⟨condition⟩ : ⟨odd-condition⟩ | ⟨rel-op-condition⟩
+    // ⟨odd-condition⟩ : odd ⟨expr⟩
+    // ⟨rel-op-condition⟩ : ⟨expr⟩ ⟨rel-op⟩ ⟨expr⟩
+    // ⟨rel-op⟩ : = | <> | < | <= | > | >=
+    // ⟨expr⟩ : ⟨term⟩ | ⟨expr⟩ ⟨plus⟩ ⟨term⟩ | ⟨expr⟩ ⟨minus⟩ ⟨term⟩
+    // ⟨term⟩ : ⟨factor⟩ | ⟨term⟩ ⟨mult⟩ ⟨factor⟩ | ⟨term⟩ ⟨div⟩ ⟨factor⟩
+    // ⟨factor⟩ : ⟨ident⟩ | ⟨minus⟩ ⟨number⟩ | ⟨pos-sign⟩ ⟨number⟩ | ( ⟨expr⟩ )
+    // ⟨pos-sign⟩ : ⟨plus⟩ | ⟨empty⟩
+    // ⟨empty⟩ :
 %%
 
 // Set the program's ast to be ast
