@@ -147,7 +147,7 @@ extern void setProgAST(block_t t);
     readStmt    : readsym ident {$$ = ast_read_stmt($2); };
     writeStmt   : writesym expr {$$ = ast_write_stmt($2); };
     skipStmt    : skipsym {$$ = ast_skip_stmt($1); };
-    stmts       : stmt {$$ = ast_stmts_singleton($1); };
+    stmts       : stmt {$$ = ast_stmts_singleton($1); }
                 | stmts semisym stmt {$$ = ast_stmts($1, $3); };
 
 
