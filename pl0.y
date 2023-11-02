@@ -125,7 +125,7 @@ extern void setProgAST(block_t t);
     ⟨proc-decls⟩ ::= {⟨proc-decl⟩}
 
     // Yamil
-    ⟨proc-decl⟩ ::= procedure ⟨ident⟩ ; ⟨block⟩ ;
+    ⟨proc-decl⟩ ::= procedure ⟨ident⟩ ; ⟨block⟩ ; procedure ident {$$ = ast_proc_decl($1, $2)}
     ⟨stmt⟩ ::= ⟨assign-stmt⟩ | ⟨call-stmt⟩ | ⟨begin-stmt⟩ | ⟨if-stmt⟩
     | ⟨while-stmt⟩ | ⟨read-stmt⟩ | ⟨write-stmt⟩ | ⟨skip-stmt⟩
     ⟨assign-stmt⟩ ::= ⟨ident⟩ := ⟨expr⟩
