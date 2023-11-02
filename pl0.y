@@ -157,11 +157,15 @@ extern void setProgAST(block_t t);
     oddCondition    : oddsym expr {$$ = ast_odd_condition($2);};
     relOpCondition  : expr relOp expr {$$ = ast_rel_op_condition($1,$2,$3);};
     relOp           : eqsym | neqsym | ltsym | leqsym | gtsym | geqsym ;
-    //expr           : term {$$ = } | ⟨expr⟩ ⟨plus⟩ ⟨term⟩ | ⟨expr⟩ ⟨minus⟩ ⟨term⟩
-    //term           : factor {$$ = } | ⟨term⟩ ⟨mult⟩ ⟨factor⟩ | ⟨term⟩ ⟨div⟩ ⟨factor⟩
+    expr            : term  { $$ = $1; } 
+                    | expr plussym term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));}
+                    | expr minussym term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));};
+    term            : factor { $$ = $1; } 
+                    | term multsym factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));}
+                    | term divsym factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));};
     // ⟨factor⟩     : ⟨ident⟩ | ⟨minus⟩ ⟨number⟩ | ⟨pos-sign⟩ ⟨number⟩ | ( ⟨expr⟩ )
     // ⟨pos-sign⟩ : ⟨plus⟩ | ⟨empty⟩
-    empty           :   ;
+    //empty           :   ;
 %%
 
 // Set the program's ast to be ast
