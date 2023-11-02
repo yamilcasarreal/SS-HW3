@@ -146,6 +146,10 @@ extern void setProgAST(block_t t);
     whileStmt   : whilesym condition dosym stmt {$$ = ast_While_stmt($2, $4); };
     readStmt    : readsym ident {$$ = ast_read_stmt($2); };
     writeStmt   : writesym expr {$$ = ast_write_stmt($2); };
+    skipStmt    : skipsym {$$ = ast_skip_stmt($1); };
+    stmts       : stmt {$$ = ast_stmts_singleton($1); };
+                | stmts semisym stmt {$$ = ast_stmts($1, $3); };
+
 
     // Robert
     // ⟨condition⟩ : ⟨odd-condition⟩ | ⟨rel-op-condition⟩
