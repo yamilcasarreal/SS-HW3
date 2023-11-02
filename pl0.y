@@ -153,7 +153,7 @@ extern void setProgAST(block_t t);
 
     // Robert 
     condition       : oddCondition {$$ = ast_condition_odd($1);}
-	                | relOpCondition {$$ = ast_condition_rel($1);};
+	                 | relOpCondition {$$ = ast_condition_rel($1);};
     oddCondition    : oddsym expr {$$ = ast_odd_condition($2);};
     relOpCondition  : expr relOp expr {$$ = ast_rel_op_condition($1,$2,$3);};
     relOp           : eqsym | neqsym | ltsym | leqsym | gtsym | geqsym
