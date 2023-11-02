@@ -151,17 +151,17 @@ extern void setProgAST(block_t t);
                 | stmts semisym stmt {$$ = ast_stmts($1, $3); };
 
 
-    // Robert testing
-    // ⟨condition⟩ : ⟨odd-condition⟩ | ⟨rel-op-condition⟩
-    // ⟨odd-condition⟩ : odd ⟨expr⟩
-    //roobbbbbbbbbbbbbbbbbbeeeeeeeeerrrrrrrrrrrrtttttttttt
-    // ⟨rel-op-condition⟩ : ⟨expr⟩ ⟨rel-op⟩ ⟨expr⟩
-    // ⟨rel-op⟩ : = | <> | < | <= | > | >=
-    // ⟨expr⟩ : ⟨term⟩ | ⟨expr⟩ ⟨plus⟩ ⟨term⟩ | ⟨expr⟩ ⟨minus⟩ ⟨term⟩
-    // ⟨term⟩ : ⟨factor⟩ | ⟨term⟩ ⟨mult⟩ ⟨factor⟩ | ⟨term⟩ ⟨div⟩ ⟨factor⟩
+    // Robert 
+    condition      : oddCondition {$$ = ast_condition_odd($1);}
+	               | relOpCondition {$$ = ast_condition_rel($1);};
+    oddCondition   : oddsym expr {$$ = ast_odd_condition($2);};
+    relOpCondition : expr relOp expr {$$ = ast_rel_op_condition($1,$2,$3);};
+    relOp          : eqsym | neqsym | ltsym | leqsym | gtsym | geqsym
+    //expr           : term {$$ = } | ⟨expr⟩ ⟨plus⟩ ⟨term⟩ | ⟨expr⟩ ⟨minus⟩ ⟨term⟩
+    //term           : factor {$$ = } | ⟨term⟩ ⟨mult⟩ ⟨factor⟩ | ⟨term⟩ ⟨div⟩ ⟨factor⟩
     // ⟨factor⟩ : ⟨ident⟩ | ⟨minus⟩ ⟨number⟩ | ⟨pos-sign⟩ ⟨number⟩ | ( ⟨expr⟩ )
     // ⟨pos-sign⟩ : ⟨plus⟩ | ⟨empty⟩
-    // ⟨empty⟩ :
+    empty          :
 %%
 
 // Set the program's ast to be ast
