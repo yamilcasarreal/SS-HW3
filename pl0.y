@@ -117,18 +117,18 @@ extern void setProgAST(block_t t);
     block      : constDecls varDecls procDecls stmt { $$ = ast_block($1, $2, $3, $4); } ;
     constDecls : empty { $$ = ast_const_decls_empty($1); }
                 | constDecls constDecl {$$ = ast_const_decls($1, $2); };
-    constDecl  : constsym constDefs semisym {$$ = ast_const_decl($1); };
+    constDecl  : constsym constDefs semisym {$$ = ast_const_decl($2); };
     constDefs  : constDef {$$ = ast_const_defs_singleton($1); };
-                | constDefs commasym constDef {$$ = ast_const_defs($1, $2); };
-    constDef   : identsym eqsym numbersym {$$ = ast_const_def($1, $2); };
+                | constDefs commasym constDef {$$ = ast_const_defs($1, $3); };
+    constDef   : identsym eqsym numbersym {$$ = ast_const_def($1, $3); };
     varDecls   : empty { $$ = ast_var_decls_empty($1); }
                 | varDecls varDecl {$$ = ast_var_decls($1, $2); };
-    varDecl    : varsym identsym semisym {$$ = ast_var_decl($1); };
+    varDecl    : varsym idents semisym {$$ = ast_var_decl($2); };
     idents     : identsym {$$ = ast_idents_singleton($1); };
-                | idents commasym identsym {$$ = ast_idents($1, $2); };
+                | idents commasym identsym {$$ = ast_idents($1, $3); };
     procDecls  : empty { $$ = ast_proc_decls_empty($1); }
                 | procDecls procDecl {$$ = ast_proc_decls($1, $2); };
-    procDecl   : proceduresym identsym semisym block semisym {$$ = ast_proc_decl($1, $2); };
+    procDecl   : proceduresym identsym semisym block semisym {$$ = ast_proc_decl($2, $4); };
     stmt       : assignStmt      { $$ = ast_stmt_assign($1); }
                 | callStmt       { $$ = ast_stmt_call($1);   }
                 | beginStmt      { $$ = ast_stmt_begin($1);  }
@@ -139,37 +139,38 @@ extern void setProgAST(block_t t);
                 | skipStmt       { $$ = ast_stmt_skip($1);   };
     
     // Yamil
-    assignStmt  : ident expr {$$ = ast_assign_stmt($1, $2); };
-    callStmt    : callsym ident {$$ = ast_call_stmt($2); };
+    assignStmt  : identsym becomessym expr {$$ = ast_assign_stmt($1, $3); };
+    callStmt    : callsym identsym {$$ = ast_call_stmt($2); };
     beginStmt   : beginsym stmts endsym {$$ = ast_begin_stmt($2); };
     ifStmt      : ifsym condition thensym stmt elsesym stmt {$$ = ast_if_stmt($2, $4, $6); };
-    whileStmt   : whilesym condition dosym stmt {$$ = ast_While_stmt($2, $4); };
-    readStmt    : readsym ident {$$ = ast_read_stmt($2); };
+    whileStmt   : whilesym condition dosym stmt {$$ = ast_while_stmt($2, $4); };
+    readStmt    : readsym identsym {$$ = ast_read_stmt($2); };
     writeStmt   : writesym expr {$$ = ast_write_stmt($2); };
-    skipStmt    : skipsym {$$ = ast_skip_stmt($1); };
+    skipStmt    : skipsym;
     stmts       : stmt {$$ = ast_stmts_singleton($1); }
                 | stmts semisym stmt {$$ = ast_stmts($1, $3); };
 
 
     // Robert 
-    condition       : oddCondition {$$ = ast_condition_odd($1);}
-	                 | relOpCondition {$$ = ast_condition_rel($1);};
+    condition   : oddCondition {$$ = ast_condition_odd($1);}
+	            | relOpCondition {$$ = ast_condition_rel($1);};
     oddCondition    : oddsym expr {$$ = ast_odd_condition($2);};
     relOpCondition  : expr relOp expr {$$ = ast_rel_op_condition($1,$2,$3);};
-    relOp           : eqsym | neqsym | ltsym | leqsym | gtsym | geqsym ;
-    expr            : term  { $$ = $1; } 
-                    | expr "+" term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));}
-                    | expr "-" term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));};
-    term            : factor { $$ = $1; } 
-                    | term "*" factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));}
-                    | term "/" factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,%2,$3));};
-   /* factor          : //⟨ident⟩ (not sure what to do for this one yet ) |
-                     "-" ⟨number⟩ 
-                    | ⟨pos-sign⟩ ⟨number⟩ 
-                    | ( ⟨expr⟩ ) */
-    // ⟨pos-sign⟩ : ⟨plus⟩ | ⟨empty⟩
+    relOp       : eqsym | neqsym | ltsym | leqsym | gtsym | geqsym ;
+    expr        : term  { $$ = $1; } 
+                | expr "+" term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));}
+                | expr "-" term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));};
+    term        : factor { $$ = $1; } 
+                | term "*" factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));}
+                | term "/" factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));};
+    factor      : identsym 
+                | minussym numbersym
+                | posSign numbersym
+                | "(" expr ")" ;
+
+    posSign     : plussym 
+                | empty ;
     empty           : {$$ = ast_empty(file_location_make(lexer_filename(),lexer_line()));};
 %%
-
 // Set the program's ast to be ast
 void setProgAST(block_t ast) { progast = ast; }
