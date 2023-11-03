@@ -27,7 +27,7 @@ extern void yyerror(const char *filename, const char *msg);
 %parse-param { char const *file_name }
 
 %token <ident> identsym
-%token <number> numbersym
+%token <number> numbersym 
 %token <token> plussym    "+"
 %token <token> minussym   "-"
 %token <token> multsym    "*"
@@ -156,21 +156,25 @@ extern void setProgAST(block_t t);
 	            | relOpCondition {$$ = ast_condition_rel($1);};
     oddCondition    : oddsym expr {$$ = ast_odd_condition($2);};
     relOpCondition  : expr relOp expr {$$ = ast_rel_op_condition($1,$2,$3);};
-    relOp       : eqsym | neqsym | ltsym | leqsym | gtsym | geqsym ;
+    relOp       : eqsym 
+                | neqsym 
+                | ltsym 
+                | leqsym 
+                | gtsym 
+                | geqsym ;
     expr        : term  { $$ = $1; } 
-                | expr "+" term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));}
-                | expr "-" term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));};
+                | expr plussym term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));}
+                | expr minussym term {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));};
     term        : factor { $$ = $1; } 
-                | term "*" factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));}
-                | term "/" factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));};
-    factor      : identsym 
-                | minussym numbersym
-                | posSign numbersym
-                | "(" expr ")" ;
-
+                | term multsym factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));}
+                | term divsym factor {$$ = ast_expr_binary_op(ast_binary_op_expr($1,$2,$3));};
+    factor      : identsym {$$ = ast_expr_ident($1); }
+                | minussym numbersym {$$ = ast_expr_negated_number($1, $2); }
+                | posSign numbersym  {$$ = ast_expr_pos_number($1, $2); }
+                | lparensym expr rparensym ;
     posSign     : plussym 
                 | empty ;
-    empty           : {$$ = ast_empty(file_location_make(lexer_filename(),lexer_line()));};
+    empty       : {$$ = ast_empty(file_location_make(lexer_filename(),lexer_line()));};
 %%
 // Set the program's ast to be ast
 void setProgAST(block_t ast) { progast = ast; }

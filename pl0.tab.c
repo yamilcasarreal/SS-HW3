@@ -553,8 +553,8 @@ static const yytype_uint8 yyrline[] =
      124,   125,   126,   127,   128,   129,   130,   131,   132,   133,
      134,   135,   136,   137,   138,   139,   142,   143,   144,   145,
      146,   147,   148,   149,   150,   151,   155,   156,   157,   158,
-     159,   159,   159,   159,   159,   159,   160,   161,   162,   163,
-     164,   165,   166,   167,   168,   169,   171,   172,   173
+     159,   160,   161,   162,   163,   164,   165,   166,   167,   168,
+     169,   170,   171,   172,   173,   174,   175,   176,   177
 };
 #endif
 
@@ -1996,49 +1996,67 @@ yyreduce:
     break;
 
   case 46: /* expr: term  */
-#line 160 "pl0.y"
+#line 165 "pl0.y"
                         { (yyval.expr) = (yyvsp[0].expr); }
 #line 2002 "pl0.tab.c"
     break;
 
   case 47: /* expr: expr "+" term  */
-#line 161 "pl0.y"
-                                {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
+#line 166 "pl0.y"
+                                    {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
 #line 2008 "pl0.tab.c"
     break;
 
   case 48: /* expr: expr "-" term  */
-#line 162 "pl0.y"
-                                {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
+#line 167 "pl0.y"
+                                     {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
 #line 2014 "pl0.tab.c"
     break;
 
   case 49: /* term: factor  */
-#line 163 "pl0.y"
+#line 168 "pl0.y"
                          { (yyval.expr) = (yyvsp[0].expr); }
 #line 2020 "pl0.tab.c"
     break;
 
   case 50: /* term: term "*" factor  */
-#line 164 "pl0.y"
-                                  {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
+#line 169 "pl0.y"
+                                      {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
 #line 2026 "pl0.tab.c"
     break;
 
   case 51: /* term: term "/" factor  */
-#line 165 "pl0.y"
-                                  {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
+#line 170 "pl0.y"
+                                     {(yyval.expr) = ast_expr_binary_op(ast_binary_op_expr((yyvsp[-2].expr),(yyvsp[-1].token),(yyvsp[0].expr)));}
 #line 2032 "pl0.tab.c"
     break;
 
-  case 58: /* empty: %empty  */
-#line 173 "pl0.y"
-                      {(yyval.empty) = ast_empty(file_location_make(lexer_filename(),lexer_line()));}
+  case 52: /* factor: identsym  */
+#line 171 "pl0.y"
+                           {(yyval.expr) = ast_expr_ident((yyvsp[0].ident)); }
 #line 2038 "pl0.tab.c"
     break;
 
+  case 53: /* factor: "-" numbersym  */
+#line 172 "pl0.y"
+                                     {(yyval.expr) = ast_expr_negated_number((yyvsp[-1].token), (yyvsp[0].number)); }
+#line 2044 "pl0.tab.c"
+    break;
 
-#line 2042 "pl0.tab.c"
+  case 54: /* factor: posSign numbersym  */
+#line 173 "pl0.y"
+                                     {(yyval.expr) = ast_expr_pos_number((yyvsp[-1].token), (yyvsp[0].number)); }
+#line 2050 "pl0.tab.c"
+    break;
+
+  case 58: /* empty: %empty  */
+#line 177 "pl0.y"
+                  {(yyval.empty) = ast_empty(file_location_make(lexer_filename(),lexer_line()));}
+#line 2056 "pl0.tab.c"
+    break;
+
+
+#line 2060 "pl0.tab.c"
 
         default: break;
       }
@@ -2278,7 +2296,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 174 "pl0.y"
+#line 178 "pl0.y"
 
 // Set the program's ast to be ast
 void setProgAST(block_t ast) { progast = ast; }
