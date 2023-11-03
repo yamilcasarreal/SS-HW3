@@ -1,1 +1,3 @@
-Segmentation fault (core dumped)
+var x;
+skip
+.

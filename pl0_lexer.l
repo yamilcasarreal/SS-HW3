@@ -1,4 +1,4 @@
-/* $Id: pl0_lexer_definitions_top.l,v 1.2 2023/10/06 11:12:37 leavens Exp leavens $ */
+/* $Id: pl0_lexer.l,v 1.9 2023/10/06 10:38:47 leavens Exp $ */
 /* Lexical Analyzer for PL/0 */
 
 %option header-file = "pl0_lexer.h"
@@ -39,6 +39,7 @@ extern FILE *yyin;
 
 // apparently strdup is not declared in <string.h>
 extern char *strdup(const char *s);
+
 // set the lexer's value for a token in yylval as an AST
 static void tok2ast(int code) {
     AST t;
@@ -70,123 +71,87 @@ static void number2ast(unsigned int val)
 %}
 
  /* you can add actual definitions below */
-COMMENT               "#".*
-ERROR                 .
-IDENT                 [a-zA-Z_][_a-zA-Z0-9]*
-NUMBER                [0-9]+
-PLUS                  "+"  
-MINUS                 "-"  
-MULT                  "*"  
-DIV                   "/"  
-PERIOD                "."  
-SEMICOLON             ";"  
-EQUAL                 "="  
-COMMA                 ","  
-BECOMES               ":="  
-CONST                 "const"  
-PROCEDURE             "procedure"  
-CALL                  "call"  
-BEGIN                 "begin" 
-END                   "end" 
-IF                    "if"  
-THEN                  "then"  
-ELSE                  "else"  
-WHILE                 "while"  
-DO                    "do"  
-READ                  "read"  
-WRITE                 "write"  
-SKIP                  "skip"  
-ODD                   "odd"  
-NOTEQUAL              "<>"  
-LT                    "<"  
-LEQ                   "<="  
-GT                    ">"  
-GEQ                   ">="  
-LPAREN                "("  
-RPAREN                ")"  
-VAR                   "var"
-WHITESPACE            [[:space:]\t\n]+
 
- /* the rules section starts after the %% below */
+DIGIT	[0-9]
+NUMBER          {DIGIT}+
+LETTER		[_a-zA-Z]
+LETTERORDIGIT	({LETTER}|{DIGIT})
+IDENT		{LETTER}({LETTERORDIGIT}*)
+NEWLINE         \n
+CR              \r
+EOL             ({NEWLINE}|({CR}{NEWLINE}))
+COMMENTSTART    #
+COMMENT         {COMMENTSTART}.*
+IGNORED         [ \t\v\f\r]
+
 %%
 
- /* fill in the rules for your lexer here! */
+{IGNORED}       { ; } /* do nothing */
+{COMMENT}       { ; } /* ignore comments */
+{EOL}           { ; } /* ignore EOL */
 
- /* $Id: pl0_lexer_user_code.c,v 1.3 2023/10/06 11:12:37 leavens Exp leavens $ */
-{COMMENT}    {/* Ignore one line comments*/}
-{NUMBER}     {
-                // Creates error message and gets current number length.
-                char msg[1000];
-                char intMaxStr[11];
-                sprintf(intMaxStr, "%d", INT_MAX);
-                sprintf(msg, "Number (%s) is too large!", yytext);
-                int len = strlen(yytext);
-
-                // Returns error if number has more than 10 digits.
-                if (len > 10) {
-                    yyerror(lexer_filename(), msg);  
+{NUMBER}        { unsigned long lval;
+                  int ssf_ret;
+                  ssf_ret = sscanf(yytext, "%lu", &lval);
+                  if (ssf_ret != 1) {
+                      bail_with_error("Number (%s) couldn't be read by lexer!",
+				      yytext);
+                  }
+                  if (INT_MAX < lval ) {
+                      char msgbuf[512];
+                      if (strlen(yytext) >= 300) {
+                          sprintf(msgbuf, "Number (%300s ...) is too large!",
+				  yytext);
+                      } else {
+                          sprintf(msgbuf, "Number (%s) is too large!", yytext);
+                      }
+                      yyerror(lexer_filename(), msgbuf);
+                  }
+                  number2ast((int) lval);
+                  return numbersym; 
                 }
 
-                // Checks if number is greater than INT_MAX and returns error if so.
-                else if (len == 10) {
-                    for (int i = 0; i < len; i++) {
-                        if (yytext[i] > intMaxStr[i]) {
-                            yyerror(lexer_filename(), msg);
-                            break;
-                        }
-                        else if (yytext[i] < intMaxStr[i]) {
-                            break;
-                        }
-                    } 
-                }
+\+              { tok2ast(plussym); return plussym; }
+-               { tok2ast(minussym); return minussym; }
+\*              { tok2ast(multsym); return multsym; }
+\/               { tok2ast(divsym); return divsym; }  
 
-                return numbersym;
-             }
-{WHITESPACE} {/* Ignore Whitespace*/ }
-{PERIOD}     { tok2ast(periodsym); return periodsym; }
-{MINUS}      { tok2ast(minussym); return minussym; }
-{PLUS}       { tok2ast(plussym); return plussym; }
-{MULT}       { tok2ast(multsym); return multsym; }
-{DIV}        { tok2ast(divsym); return divsym; }
-{PERIOD}     { tok2ast(periodsym); return periodsym; }
-{SEMICOLON}  { tok2ast(semisym); return semisym; }
-{EQUAL}      { tok2ast(eqsym); return eqsym; }
-{COMMA}      { tok2ast(periodsym); return commasym; }
-{BECOMES}    { tok2ast(becomessym); return becomessym; }
-{VAR}        { tok2ast(varsym); return varsym; }
-{CONST}      { tok2ast(constsym); return constsym;}
-{PROCEDURE}  { tok2ast(proceduresym); return proceduresym; }
-{IF}         { tok2ast(ifsym); return ifsym; }
-{CALL}       { tok2ast(callsym); return callsym; }
-{BEGIN}      { tok2ast(beginsym); return beginsym; }
-{END}        { tok2ast(endsym); return endsym; }
-{IF}         { tok2ast(ifsym); return ifsym; }
-{THEN}       { tok2ast(thensym); return thensym; }
-{ELSE}       { tok2ast(elsesym); return elsesym; }
-{WHILE}      { tok2ast(whilesym); return whilesym; }
-{DO}         { tok2ast(dosym); return dosym; }
-{READ}       { tok2ast(readsym); return readsym; }
-{WRITE}      { tok2ast(writesym); return writesym; }
-{SKIP}       { tok2ast(skipsym); return skipsym; }
-{ODD}        { tok2ast(oddsym); return oddsym; }
-{NOTEQUAL}   { tok2ast(neqsym); return neqsym; }
-{LT}         { tok2ast(ltsym); return ltsym; }
-{LEQ}        { tok2ast(leqsym); return leqsym; }
-{GT}         { tok2ast(gtsym); return gtsym; }
-{GEQ}        { tok2ast(geqsym); return geqsym; }
-{LPAREN}     { tok2ast(lparensym); return lparensym; }
-{RPAREN}     { tok2ast(rparensym); return rparensym; }
-{IDENT}      { tok2ast(identsym); return identsym; }
-{ERROR}      {  // Returns error for undefined characters
-                char* msg = malloc(1000 * sizeof(char));
-                int ascii = yytext[0];
-                sprintf(msg, "invalid character: '%s' ('\\%.3o')", yytext, ascii);
-                yyerror(lexer_filename(), msg);
-             }
-%% 
+\.              { return periodsym; }
+\;              { return semisym; }
+,               { return commasym; }
+:=              { return becomessym; }
+=               { tok2ast(eqsym); return eqsym; }
+\<>             { tok2ast(neqsym); return neqsym; }
+\<=             { tok2ast(leqsym); return leqsym; }
+\>=             { tok2ast(geqsym); return geqsym; }
+\>              { tok2ast(gtsym); return gtsym; }
+\<              { tok2ast(ltsym); return ltsym; }
+\(              { tok2ast(lparensym); return lparensym; }
+\)              { tok2ast(rparensym); return rparensym; }
 
-/* This code goes in the user code section of the pl0_lexer`.l file,
-   following the last %% above. */
+const           { tok2ast(constsym); return constsym; }
+var             { tok2ast(varsym); return varsym; }
+procedure       { tok2ast(proceduresym); return proceduresym; }
+call            { tok2ast(callsym); return callsym; }
+begin           { tok2ast(beginsym); return beginsym; }
+end             { tok2ast(endsym); return endsym; }
+if              { tok2ast(ifsym); return ifsym; }
+then            { tok2ast(thensym); return thensym; }
+else            { tok2ast(elsesym); return elsesym; }
+while           { tok2ast(whilesym); return whilesym; }
+do              { tok2ast(dosym); return dosym; }
+read            { tok2ast(readsym); return readsym; }
+write           { tok2ast(writesym); return writesym; }
+skip            { tok2ast(skipsym); return skipsym; }
+odd             { tok2ast(oddsym); return oddsym; }
+
+{IDENT}         { ident2ast(yytext); return identsym; }
+
+.   { char msgbuf[512];
+      sprintf(msgbuf, "invalid character: '%c' ('\\0%o')", *yytext, *yytext);
+      yyerror(lexer_filename(), msgbuf);
+    }
+%%
 
 // Requires: fname != NULL
 // Requires: fname is the name of a readable file
