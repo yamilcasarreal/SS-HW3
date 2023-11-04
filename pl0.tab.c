@@ -2049,14 +2049,20 @@ yyreduce:
 #line 2050 "pl0.tab.c"
     break;
 
-  case 58: /* empty: %empty  */
-#line 177 "pl0.y"
-                  {(yyval.empty) = ast_empty(file_location_make(lexer_filename(),lexer_line()));}
+  case 55: /* factor: "(" expr ")"  */
+#line 174 "pl0.y"
+                                           {(yyval.expr) = (yyvsp[-1].expr); }
 #line 2056 "pl0.tab.c"
     break;
 
+  case 58: /* empty: %empty  */
+#line 177 "pl0.y"
+                  {(yyval.empty) = ast_empty(file_location_make(lexer_filename(),lexer_line()));}
+#line 2062 "pl0.tab.c"
+    break;
 
-#line 2060 "pl0.tab.c"
+
+#line 2066 "pl0.tab.c"
 
         default: break;
       }

@@ -171,9 +171,9 @@ extern void setProgAST(block_t t);
     factor      : identsym {$$ = ast_expr_ident($1); }
                 | minussym numbersym {$$ = ast_expr_negated_number($1, $2); }
                 | posSign numbersym  {$$ = ast_expr_pos_number($1, $2); }
-                | lparensym expr rparensym ;
+                | lparensym expr rparensym {$$ = $2; };
     posSign     : plussym 
-                | empty ;
+                | empty;
     empty       : {$$ = ast_empty(file_location_make(lexer_filename(),lexer_line()));};
 %%
 // Set the program's ast to be ast
