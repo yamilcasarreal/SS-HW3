@@ -115,8 +115,9 @@ void scope_check_declare_ident(ident_t id,
 {
     if (symtab_declared_in_current_scope(id.name)) {
         // only variables in FLOAT
+        
 	bail_with_prog_error(*(id.file_loc),
-			     "Variable \"%s\" has already been declared!",
+			     "variable \"%s\" is already declared as a variable",
 			     id.name);
     } else {
 	int ofst_cnt = symtab_scope_loc_count();
@@ -132,7 +133,7 @@ void scope_check_declare_proc(proc_decl_t id,
     if (symtab_declared_in_current_scope(id.name)) {
         // only variables in FLOAT
 	bail_with_prog_error(*(id.file_loc),
-			     "Variable \"%s\" has already been declared!",
+			     "variable \"%s\" has already been declared!",
 			     id.name);
     } else {
 	int ofst_cnt = symtab_scope_loc_count();
@@ -325,7 +326,7 @@ id_use *scope_check_ident_declared(
     id_use *ret = symtab_lookup(name);
     if (ret == NULL) {
 	bail_with_prog_error(floc,
-				"identifier \"%s\" is not declared!",
+				"identifer \"%s\" is not declared!",
 				name);
     }
     return ret;

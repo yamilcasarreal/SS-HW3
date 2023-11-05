@@ -8,3 +8,4 @@ begin
     f := y
 end
 .
+hw3-declerrtest5.pl0: line 5 identifer "d" is not declared!

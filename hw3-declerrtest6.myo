@@ -32,3 +32,4 @@ begin
   end
 end
 .
+hw3-declerrtest6.pl0: line 20 identifer "w" is not declared!

@@ -14,3 +14,4 @@ do
       e := f
   end
 .
+hw3-declerrtest9.pl0: line 11 identifer "e" is not declared!
