@@ -36,7 +36,19 @@ void scope_check_constDecls(const_decls_t cds)
 // reporting duplicate declarations
 void scope_check_constDecl(const_decl_t cd)
 {
-    scope_check_idents(cd.idents, constant_idk);
+    scope_check_constDefs(cd.const_defs);
+}
+
+void scope_check_constDefs(const_defs_t cdfs){
+    const_def_t *cdf = cdfs.const_defs;
+    while (cdf != NULL) {
+	scope_check_constDef(*cdf);
+	cdf = cdf->next;
+    }
+}
+
+void scope_check_constDef(const_def_t cdf){
+    scope_check_ident_expr(cdf.ident);
 }
 
 // build the symbol table and check the declarations in vds
@@ -58,23 +70,22 @@ void scope_check_varDecl(var_decl_t vd)
 
 void scope_check_procDecls(proc_decls_t pds)
 {
-    proc_decl_t *pdp = cds.proc_decls;
+    proc_decl_t *pdp = pds.proc_decls;
     while (pdp != NULL) {
 	scope_check_procDecl(*pdp);
 	pdp = pdp->next;
     }
 }
 
-void scope_check_procDecl(proc_decl_t *pd)
+void scope_check_procDecl(proc_decl_t pd)
 {
-    scope_check_idents(pd.idents, procedure_idk);
-    
-    block_s *b = cds.block;
-    while (b != NULL) {
-	scope_check_program(*b);
-	b = b->next;
-    }
+    // TODO: Figure out if we need to declare the name
+    // scope_check_idents(pd.idents, procedure_idk);
+
+    // TODO: Figure 
+	scope_check_program(*pd.block);
 }
+
 
 // Add declarations for the names in ids
 // to current scope as type vt
@@ -156,7 +167,7 @@ void scope_check_assignStmt(
     scope_check_expr(*(stmt.expr));
 }
 
-scope_check_callStmt(call_stmt_t stmt){
+void scope_check_callStmt(call_stmt_t stmt){
     scope_check_ident_declared(*(stmt.file_loc), stmt.name);
 }
 
@@ -196,14 +207,14 @@ void scope_check_condition(condition_t cond)
 {
     switch (cond.cond_kind) {
     case ck_odd:
-	scope_check_odd_cond(exp.data.odd_cond);
+	scope_check_odd_cond(cond.data.odd_cond);
 	break;
     case ck_rel:
-	scope_check_rel_op_cond(exp.data.rel_op_cond);
+	scope_check_rel_op_cond(cond.data.rel_op_cond);
 	break;
     default:
 	bail_with_error("Unexpected expr_kind_e (%d) in scope_check_expr",
-			exp.cond_kind);
+			cond.cond_kind);
 	break;
     }
 }

@@ -1,0 +1,7 @@
+const x = 10;
+procedure nested;
+  const x = 3;
+  write x;
+call nested
+.
+hw3-scope-test0.pl0: line 2 identifier "x" is not declared!

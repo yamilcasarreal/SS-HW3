@@ -13,6 +13,10 @@ extern void scope_check_constDecls(const_decls_t cds);
 
 extern void scope_check_constDecl(const_decl_t cd);
 
+extern void scope_check_constDefs(const_defs_t cdfs);
+
+extern void scope_check_constDef(const_def_t cdf);
+
 // build the symbol table and check the declarations in vds
 extern void scope_check_varDecls(var_decls_t vds);
 
@@ -22,7 +26,7 @@ extern void scope_check_varDecl(var_decl_t vd);
 
 extern void scope_check_procDecls(proc_decls_t pds);
 
-extern void scope_check_procDecl(proc_decl_t *pd);
+extern void scope_check_procDecl(proc_decl_t pd);
 
 // Add declarations for the names in ids to the current scope's symbol table,
 // for variables of the type vt,
