@@ -6,4 +6,3 @@ begin
   write x
 end
 .
-hw3-declerrtest8.pl0: line 2 identifier "y" is not declared!

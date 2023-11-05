@@ -15,6 +15,7 @@
 // or uses of undeclared identifiers
 void scope_check_program(block_t prog)
 {
+    // printf("test");
     symtab_enter_scope();
     scope_check_constDecls(prog.const_decls);
     scope_check_varDecls(prog.var_decls);
@@ -25,6 +26,7 @@ void scope_check_program(block_t prog)
 
 void scope_check_constDecls(const_decls_t cds)
 {
+    // printf("constDecls called, reading constant declarations \n");
     const_decl_t *cdp = cds.const_decls;
     while (cdp != NULL) {
 	scope_check_constDecl(*cdp);
@@ -36,10 +38,13 @@ void scope_check_constDecls(const_decls_t cds)
 // reporting duplicate declarations
 void scope_check_constDecl(const_decl_t cd)
 {
+    // TODO: Check if we call a declaration here
+    // printf("constDecl called, reading constant declaration \n");
     scope_check_constDefs(cd.const_defs);
 }
 
 void scope_check_constDefs(const_defs_t cdfs){
+    // printf("constDefs called, reading constant definitions \n");
     const_def_t *cdf = cdfs.const_defs;
     while (cdf != NULL) {
 	scope_check_constDef(*cdf);
@@ -48,7 +53,8 @@ void scope_check_constDefs(const_defs_t cdfs){
 }
 
 void scope_check_constDef(const_def_t cdf){
-    scope_check_ident_expr(cdf.ident);
+    // printf("constDef called, reading %s \n", cdf.ident.name);
+    scope_check_declare_ident(cdf.ident, constant_idk);
 }
 
 // build the symbol table and check the declarations in vds
@@ -80,7 +86,7 @@ void scope_check_procDecls(proc_decls_t pds)
 void scope_check_procDecl(proc_decl_t pd)
 {
     // TODO: Figure out if we need to declare the name
-    // scope_check_idents(pd.idents, procedure_idk);
+    scope_check_declare_proc(pd, procedure_idk);
 
     // TODO: Figure 
 	scope_check_program(*pd.block);
@@ -95,6 +101,7 @@ void scope_check_idents(idents_t ids,
 {
     ident_t *idp = ids.idents;
     while (idp != NULL) {
+    // printf("I was called");
 	scope_check_declare_ident(*idp, vt);
 	idp = idp->next;
     }
@@ -118,6 +125,23 @@ void scope_check_declare_ident(ident_t id,
 	symtab_insert(id.name, attrs);
     }
 }
+
+void scope_check_declare_proc(proc_decl_t id,
+			    id_kind vt)
+{
+    if (symtab_declared_in_current_scope(id.name)) {
+        // only variables in FLOAT
+	bail_with_prog_error(*(id.file_loc),
+			     "Variable \"%s\" has already been declared!",
+			     id.name);
+    } else {
+	int ofst_cnt = symtab_scope_loc_count();
+	id_attrs *attrs = create_id_attrs(*(id.file_loc),
+					      vt, ofst_cnt);
+	symtab_insert(id.name, attrs);
+    }
+}
+
 
 // check the statement to make sure that
 // all idenfifiers used have been declared
@@ -160,6 +184,7 @@ void scope_check_stmt(stmt_t stmt)
 void scope_check_assignStmt(
                        assign_stmt_t stmt)
 {
+    // printf("assignStmt");
     const char *name = stmt.name;
     id_use *idu = scope_check_ident_declared(*(stmt.file_loc),
 					     name);
@@ -168,6 +193,7 @@ void scope_check_assignStmt(
 }
 
 void scope_check_callStmt(call_stmt_t stmt){
+    // printf("callStmt");
     scope_check_ident_declared(*(stmt.file_loc), stmt.name);
 }
 
@@ -238,6 +264,7 @@ void scope_check_whileStmt(while_stmt_t stmt){
 // (if not, then produce an error)
 void scope_check_readStmt(read_stmt_t stmt)
 {
+    // printf("readStmt");
     scope_check_ident_declared(*(stmt.file_loc), stmt.name);
 }
 

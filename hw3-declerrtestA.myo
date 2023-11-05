@@ -26,4 +26,3 @@ do
       e := f
   end
 .
-hw3-declerrtestA.pl0: line 2 identifier "w" is not declared!

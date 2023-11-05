@@ -4,4 +4,3 @@ procedure nested;
   write x;
 call nested
 .
-hw3-scope-test0.pl0: line 2 identifier "x" is not declared!

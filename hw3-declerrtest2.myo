@@ -4,4 +4,3 @@ begin
   write nl
 end
 .
-hw3-declerrtest2.pl0: line 2 identifier "nl" is not declared!
