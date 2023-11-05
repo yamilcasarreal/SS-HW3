@@ -38,6 +38,8 @@ extern void scope_check_idents(idents_t ids, id_kind vt);
 // producing an error if this would be a duplicate declaration
 extern void scope_check_declare_ident(ident_t id, id_kind vt);
 
+extern void scope_check_declare_proc(proc_decl_t id, id_kind vt);
+
 // check the statement to make sure that
 // all idenfifiers referenced in it have been declared
 // (if not, then produce an error)

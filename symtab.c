@@ -77,10 +77,15 @@ bool symtab_declared(const char *name)
 
 // Is the given name associated with some attributes in the current scope?
 // (this only looks in the current scope).
-bool symtab_declared_in_current_scope(const char *name)
+id_kind symtab_declared_in_current_scope(const char *name)
 {
     id_attrs *attrs = scope_lookup(symtab[symtab_top_idx], name);
-    return attrs != NULL;
+
+    if (attrs) {
+        return attrs->kind;
+    }
+    // Default type
+    return procedure_idk;
 }
 
 

@@ -43,9 +43,7 @@ extern bool symtab_declared(const char *name);
 
 // Is name declared in the current scope?
 // (this only looks in the current scope)
-extern bool
-         symtab_declared_in_current_scope(
-		        const char *name);
+extern id_kind symtab_declared_in_current_scope(const char *name);
 
 // Requires: attrs != NULL &&
 // !symtab_declared_in_current_scope(name)

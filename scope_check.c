@@ -113,12 +113,34 @@ void scope_check_idents(idents_t ids,
 void scope_check_declare_ident(ident_t id,
 			    id_kind vt)
 {
-    if (symtab_declared_in_current_scope(id.name)) {
+    id_kind decType = symtab_declared_in_current_scope(id.name);
+    if (decType != procedure_idk) {
         // only variables in FLOAT
+    switch (vt) {
+        case (constant_idk):
+            if (decType == constant_idk){
+                bail_with_prog_error(*(id.file_loc),
+                            "constant \"%s\" is already declared as a constant",
+                            id.name);
+            } else {
+                bail_with_prog_error(*(id.file_loc),
+                            "constant \"%s\" is already declared as a variable",
+                            id.name);
+            }
+        break;
+        default:
+            if (decType == constant_idk){
+                    bail_with_prog_error(*(id.file_loc),
+                                "variable \"%s\" is already declared as a constant",
+                                id.name);
+                } else {
+                    bail_with_prog_error(*(id.file_loc),
+                                "variable \"%s\" is already declared as a variable",
+                                id.name);
+                }
+        break;
         
-	bail_with_prog_error(*(id.file_loc),
-			     "variable \"%s\" is already declared as a variable",
-			     id.name);
+    }
     } else {
 	int ofst_cnt = symtab_scope_loc_count();
 	id_attrs *attrs = create_id_attrs(*(id.file_loc),
