@@ -16,9 +16,27 @@
 void scope_check_program(block_t prog)
 {
     symtab_enter_scope();
+    scope_check_constDecls(prog.const_decls);
     scope_check_varDecls(prog.var_decls);
+    scope_check_procDecls(prog.proc_decls);
     scope_check_stmt(prog.stmt);
     symtab_leave_scope();
+}
+
+void scope_check_constDecls(const_decls_t cds)
+{
+    const_decl_t *cdp = cds.const_decls;
+    while (cdp != NULL) {
+	scope_check_constDecl(*cdp);
+	cdp = cdp->next;
+    }
+}
+
+// Add declarations for the names in vd,
+// reporting duplicate declarations
+void scope_check_constDecl(const_decl_t cd)
+{
+    scope_check_idents(cd.idents, constant_idk);
 }
 
 // build the symbol table and check the declarations in vds
@@ -35,14 +53,34 @@ void scope_check_varDecls(var_decls_t vds)
 // reporting duplicate declarations
 void scope_check_varDecl(var_decl_t vd)
 {
-    scope_check_idents(vd.idents, vd.var_type);
+    scope_check_idents(vd.idents, variable_idk);
+}
+
+void scope_check_procDecls(proc_decls_t pds)
+{
+    proc_decl_t *pdp = cds.proc_decls;
+    while (pdp != NULL) {
+	scope_check_procDecl(*pdp);
+	pdp = pdp->next;
+    }
+}
+
+void scope_check_procDecl(proc_decl_t *pd)
+{
+    scope_check_idents(pd.idents, procedure_idk);
+    
+    block_s *b = cds.block;
+    while (b != NULL) {
+	scope_check_program(*b);
+	b = b->next;
+    }
 }
 
 // Add declarations for the names in ids
 // to current scope as type vt
 // reporting any duplicate declarations
 void scope_check_idents(idents_t ids,
-			var_type_e vt)
+			id_kind vt)
 {
     ident_t *idp = ids.idents;
     while (idp != NULL) {
@@ -55,7 +93,7 @@ void scope_check_idents(idents_t ids,
 // to current scope as type vt
 // reporting if it's a duplicate declaration
 void scope_check_declare_ident(ident_t id,
-			    var_type_e vt)
+			    id_kind vt)
 {
     if (symtab_declared_in_current_scope(id.name)) {
         // only variables in FLOAT
@@ -64,7 +102,7 @@ void scope_check_declare_ident(ident_t id,
 			     id.name);
     } else {
 	int ofst_cnt = symtab_scope_loc_count();
-	id_attrs *attrs = id_attrs_loc_create(*(id.file_loc),
+	id_attrs *attrs = create_id_attrs(*(id.file_loc),
 					      vt, ofst_cnt);
 	symtab_insert(id.name, attrs);
     }
@@ -79,17 +117,26 @@ void scope_check_stmt(stmt_t stmt)
     case assign_stmt:
 	scope_check_assignStmt(stmt.data.assign_stmt);
 	break;
+    case call_stmt:
+	scope_check_callStmt(stmt.data.call_stmt);
+	break;
     case begin_stmt:
 	scope_check_beginStmt(stmt.data.begin_stmt);
 	break;
     case if_stmt:
 	scope_check_ifStmt(stmt.data.if_stmt);
 	break;
+    case while_stmt:
+	scope_check_whileStmt(stmt.data.while_stmt);
+	break;
     case read_stmt:
 	scope_check_readStmt(stmt.data.read_stmt);
 	break;
     case write_stmt:
 	scope_check_writeStmt(stmt.data.write_stmt);
+	break;
+    case skip_stmt:
+	// No further unpacking needed
 	break;
     default:
 	bail_with_error("Call to scope_check_stmt with an AST that is not a statement!");
@@ -109,15 +156,18 @@ void scope_check_assignStmt(
     scope_check_expr(*(stmt.expr));
 }
 
+scope_check_callStmt(call_stmt_t stmt){
+    scope_check_ident_declared(*(stmt.file_loc), stmt.name);
+}
+
 // check the statement for
 // duplicate declarations and for
 // undeclared identifiers
 void scope_check_beginStmt(begin_stmt_t stmt)
 {
-    symtab_enter_scope();
-    scope_check_varDecls(stmt.var_decls);
+    // symtab_enter_scope();
     scope_check_stmts(stmt.stmts);
-    symtab_leave_scope();
+    // symtab_leave_scope();
 }
 
 // check the statements to make sure that
@@ -137,7 +187,38 @@ void scope_check_stmts(stmts_t stmts)
 // (if not, then produce an error)
 void scope_check_ifStmt(if_stmt_t stmt)
 {
-    scope_check_expr(stmt.expr);
+    scope_check_condition(stmt.condition);
+    scope_check_stmt(*(stmt.then_stmt));
+    scope_check_stmt(*(stmt.else_stmt));
+}
+
+void scope_check_condition(condition_t cond)
+{
+    switch (cond.cond_kind) {
+    case ck_odd:
+	scope_check_odd_cond(exp.data.odd_cond);
+	break;
+    case ck_rel:
+	scope_check_rel_op_cond(exp.data.rel_op_cond);
+	break;
+    default:
+	bail_with_error("Unexpected expr_kind_e (%d) in scope_check_expr",
+			exp.cond_kind);
+	break;
+    }
+}
+
+void scope_check_odd_cond(odd_condition_t cond){
+    scope_check_expr(cond.expr);
+}
+
+void scope_check_rel_op_cond(rel_op_condition_t cond){
+    scope_check_expr(cond.expr1);
+    scope_check_expr(cond.expr2);
+}
+
+void scope_check_whileStmt(while_stmt_t stmt){
+    scope_check_condition(stmt.condition);
     scope_check_stmt(*(stmt.body));
 }
 
@@ -163,7 +244,7 @@ void scope_check_writeStmt(write_stmt_t stmt)
 void scope_check_expr(expr_t exp)
 {
     switch (exp.expr_kind) {
-    case expr_bin_op:
+    case expr_bin:
 	scope_check_binary_op_expr(exp.data.binary);
 	break;
     case expr_ident:
@@ -171,9 +252,6 @@ void scope_check_expr(expr_t exp)
 	break;
     case expr_number:
 	// no identifiers are possible in this case, so just return
-	break;
-    case expr_logical_not:
-	scope_check_expr(*(exp.data.logical_not));
 	break;
     default:
 	bail_with_error("Unexpected expr_kind_e (%d) in scope_check_expr",
