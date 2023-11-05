@@ -16,4 +16,3 @@ begin
   call countDown
 end
 .
-hw3-scope-test2.pl0: line 3 variable "countDown" has already been declared!

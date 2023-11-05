@@ -152,7 +152,7 @@ void scope_check_declare_ident(ident_t id,
 void scope_check_declare_proc(proc_decl_t id,
 			    id_kind vt)
 {
-    if (symtab_declared_in_current_scope(id.name)) {
+    if (symtab_declared_in_current_scope(id.name) != procedure_idk ) {
         // only variables in FLOAT
 	bail_with_prog_error(*(id.file_loc),
 			     "variable \"%s\" has already been declared!",
